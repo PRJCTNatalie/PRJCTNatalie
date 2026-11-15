@@ -1,0 +1,1 @@
+Scaffolds the foundation of the Natalie agent: a Rust crate with both CLI and HTTP entrypoints, an OpenAI-compatible client, a tool registry with a few built-ins, and an agent loop that executes tool calls. Verified with a clean cargo build and a running health endpoint on the local build server. No API key bundled; configuration is env-driven.
