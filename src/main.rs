@@ -26,6 +26,14 @@ enum Commands {
         #[arg(long, default_value_t = 8080)]
         port: u16,
     },
+    /// Show detected hardware and a recommended local model.
+    Hardware,
+    /// Deploy a local AI via llama.cpp (downloads a GGUF from HuggingFace).
+    DeployLocalAi {
+        /// Optional model name/filename to force instead of auto-pick.
+        #[arg(long)]
+        model: Option<String>,
+    },
     /// Print version and exit.
     Version,
 }
@@ -45,6 +53,8 @@ async fn main() -> anyhow::Result<()> {
     match cli.command.unwrap_or(Commands::Chat) {
         Commands::Chat => cli::run_chat(config).await,
         Commands::Serve { host, port } => server::run(config, host, port).await,
+        Commands::Hardware => cli::run_hardware().await,
+        Commands::DeployLocalAi { model } => cli::run_deploy_local_ai(model).await,
         Commands::Version => {
             println!("natalie {}", env!("CARGO_PKG_VERSION"));
             Ok(())

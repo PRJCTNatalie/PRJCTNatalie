@@ -6,6 +6,8 @@
 
 pub mod agent;
 pub mod config;
+pub mod hardware;
+pub mod localai;
 pub mod llm;
 pub mod tools;
 
@@ -14,5 +16,7 @@ pub mod server;
 
 pub use agent::Agent;
 pub use config::Config;
+pub use hardware::HardwareInfo;
+pub use localai::{LocalDeployment, LocalServer, deploy};
 pub use llm::client::OpenAiClient;
 pub use tools::registry::ToolRegistry;

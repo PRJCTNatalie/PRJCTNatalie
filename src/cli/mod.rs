@@ -52,3 +52,48 @@ pub async fn run_chat(config: Config) -> anyhow::Result<()> {
     }
     Ok(())
 }
+
+pub async fn run_hardware() -> anyhow::Result<()> {
+    let hw = crate::HardwareInfo::detect();
+    println!("CPU cores: {}", hw.cpu_cores);
+    println!("Total RAM: {} MB", hw.total_ram_mb);
+    match &hw.gpu {
+        Some(g) => println!("GPU: {} ({} MB VRAM, backend: {})", g.name, g.vram_mb, g.backend),
+        None => println!("GPU: none detected (CPU-only)"),
+    }
+    println!("Model budget: {} MB", hw.model_budget_mb());
+    println!();
+    println!("Fitting models:");
+    for m in crate::localai::catalog::fitting(&hw) {
+        println!("  - {} ({} MB) {}", m.name, m.size_mb, m.description);
+    }
+    if let Some(m) = crate::localai::catalog::recommend(&hw) {
+        println!();
+        println!("Recommended: {} — {}", m.name, m.description);
+    } else {
+        println!();
+        println!("No model fits this hardware.");
+    }
+    Ok(())
+}
+
+pub async fn run_deploy_local_ai(model: Option<String>) -> anyhow::Result<()> {
+    use crate::localai::deploy;
+    let (deployment, _server) = deploy::deploy(model.as_deref()).await?;
+    println!();
+    println!("Local AI deployed.");
+    println!("  Model:    {}", deployment.model);
+    println!("  Endpoint: {}", deployment.endpoint);
+    println!("  Model file: {}", deployment.model_path.display());
+    println!();
+    println!("To use it with Natalie, set:");
+    println!("  export OPENAI_BASE_URL={}/v1", deployment.endpoint);
+    println!("  export OPENAI_API_KEY=local");
+    println!("  export NATALIE_MODEL=local");
+    println!();
+    println!("Keeping llama-server running. Press Ctrl+C to stop.");
+    // Keep process alive.
+    tokio::signal::ctrl_c().await?;
+    println!("Stopping local AI.");
+    Ok(())
+}

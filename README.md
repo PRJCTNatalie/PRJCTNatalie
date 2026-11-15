@@ -40,6 +40,15 @@ natalie chat
 natalie serve --host 127.0.0.1 --port 8080
 # POST /chat  {"message": "..."}  -> {"reply": "..."}
 # GET  /health
+# GET  /hardware
+# POST /deploy-local-ai  {}  -> deploys a local llama.cpp model
+
+# Detect hardware + recommended model
+natalie hardware
+
+# Deploy a local AI (downloads a GGUF from HuggingFace, runs llama-server)
+natalie deploy-local-ai
+natalie deploy-local-ai --model "Llama 3.1 8B (Q4_K_M)"
 ```
 
 ## Built-in tools
@@ -48,6 +57,21 @@ natalie serve --host 127.0.0.1 --port 8080
 - `current_time` — UTC timestamp.
 - `read_file` — read a UTF-8 file.
 - `list_dir` — list directory entries.
+
+## Local AI ("Deploy local AI")
+
+End-users (and spawned sub-agents) have two choices:
+
+1. **Bring your own** — set `OPENAI_BASE_URL`/`OPENAI_API_KEY`/`NATALIE_MODEL`
+   to any OpenAI-compatible backend.
+2. **Deploy local AI** — run `natalie deploy-local-ai` (or `POST /deploy-local-ai`).
+   Natalie detects the hardware (CPU cores, RAM, GPU/VRAM), picks the largest
+   GGUF from a curated HuggingFace catalog that fits, downloads it, and launches
+   `llama-server`. The endpoint is printed; point Natalie at it with
+   `OPENAI_BASE_URL=<endpoint>/v1`.
+
+Requires `llama-server` (llama.cpp) on `PATH`. If it is missing the command
+fails with install guidance rather than silently breaking.
 
 ## Layout
 
